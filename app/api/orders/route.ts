@@ -1,5 +1,12 @@
-import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+
+// In-memory order storage (for demo purposes)
+// In production, use a real database
+const orders: any[] = [];
+
+function generateId() {
+  return Math.random().toString(36).substr(2, 9);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,23 +20,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const order = await prisma.order.create({
-      data: {
-        email,
-        items: JSON.stringify(items),
-        total,
-        status: 'confirmed',
-      },
-    });
+    const order = {
+      id: generateId(),
+      email,
+      items,
+      total,
+      status: 'confirmed',
+      createdAt: new Date().toISOString(),
+    };
 
-    return NextResponse.json({
-      id: order.id,
-      email: order.email,
-      items: JSON.parse(order.items),
-      total: order.total,
-      status: order.status,
-      createdAt: order.createdAt,
-    });
+    orders.push(order);
+
+    return NextResponse.json(order);
   } catch (error) {
     console.error('Error creating order:', error);
     return NextResponse.json(
@@ -41,20 +43,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-
-    const formattedOrders = orders.map((order) => ({
-      id: order.id,
-      email: order.email,
-      items: JSON.parse(order.items),
-      total: order.total,
-      status: order.status,
-      createdAt: order.createdAt,
-    }));
-
-    return NextResponse.json(formattedOrders);
+    return NextResponse.json(orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(

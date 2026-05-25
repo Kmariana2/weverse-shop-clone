@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { PRODUCTS } from '@/lib/products-data';
 
 export async function GET(
   request: NextRequest,
@@ -8,9 +8,7 @@ export async function GET(
   try {
     const { id } = await params;
     
-    const product = await prisma.product.findUnique({
-      where: { id },
-    });
+    const product = PRODUCTS.find(p => p.id === id);
 
     if (!product) {
       return NextResponse.json(
@@ -19,14 +17,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      category: product.category,
-      badges: [product.badge1, product.badge2].filter(Boolean),
-      images: JSON.parse(product.images),
-    });
+    return NextResponse.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(

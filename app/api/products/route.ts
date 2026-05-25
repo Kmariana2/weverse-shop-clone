@@ -1,20 +1,18 @@
-import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { PRODUCTS } from '@/lib/products-data';
 
 export async function GET(request: NextRequest) {
   try {
-    const products = await prisma.product.findMany();
-    
-    const formattedProducts = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      category: product.category,
-      badges: [product.badge1, product.badge2].filter(Boolean),
-      images: JSON.parse(product.images),
-    }));
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
 
-    return NextResponse.json(formattedProducts);
+    let products = PRODUCTS;
+    
+    if (category) {
+      products = products.filter(p => p.category === category);
+    }
+
+    return NextResponse.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
