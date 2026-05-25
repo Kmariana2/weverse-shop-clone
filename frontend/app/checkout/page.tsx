@@ -49,7 +49,7 @@ export default function Checkout() {
   const handlePlaceOrder = async () => {
     try {
       setLoading(true);
-      await checkoutAPI.checkout(shippingInfo, paymentInfo);
+      await checkoutAPI.checkout(shippingInfo, 'card');
       clearCart();
       closeCart();
       router.push('/order-confirmation');

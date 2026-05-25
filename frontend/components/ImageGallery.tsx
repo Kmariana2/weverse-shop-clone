@@ -24,19 +24,19 @@ export function ImageGallery({ images }: ImageGalleryProps) {
     setMainIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     setIsDragging(true);
     const clientX =
-      e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
+      'touches' in e ? e.touches[0].clientX : e.clientX;
     setDragStart(clientX);
   };
 
-  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleDragEnd = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     setIsDragging(false);
 
     const clientX =
-      e instanceof MouseEvent ? e.clientX : e.changedTouches[0].clientX;
+      'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
     const distance = dragStart - clientX;
 
     if (Math.abs(distance) > 50) {
