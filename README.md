@@ -1,93 +1,94 @@
 # Weverse Shop Clone
 
-A complete, production-ready rebuild of the Weverse Shop with proper product-image architecture.
+A complete, production-ready rebuild of the Weverse Shop with proper product-image architecture. Built as a single Next.js 15 application with serverless backend routes.
 
 ## What This Fixes
 
-| Kimi Build Error | This Build |
+| Previous Architecture | This Build |
 |-----------------|-----------|
+| Separate frontend/backend repos | **Unified single Next.js app** with API routes |
 | 40+ separate "products" (front/back split) | **25 real products** with `images: [front, back, detail]` arrays |
 | No product detail page | **Full `/product/[id]` page** with image gallery + thumbnails |
 | No image gallery | **Swipeable gallery** with thumbnail strip below main image |
 | Flat product list | **Proper category grouping** (ARIRANG, RUN SEOKJIN, Members, j-hope, Accessories) |
 | Random pricing | **Research-backed prices** from official sources |
-| Static HTML file | **Real Next.js 15 + Express backend** with separate repos |
+| Complex multi-service deployment | **Single deployment to Vercel** with built-in API routes |
 
 ## Project Structure
 
 ```
 weverse-shop/
-├── frontend/              # Next.js 15 frontend
-│   ├── app/               # Pages (home, product detail, checkout)
-│   ├── components/        # Reusable components
-│   ├── lib/               # API client, stores, hooks
-│   ├── package.json
-│   └── README.md          # Frontend setup instructions
-├── backend/               # Express + Prisma API
-│   ├── src/               # Server, routes, seed data
-│   ├── prisma/            # Schema, migrations
-│   ├── package.json
-│   ├── Dockerfile
-│   └── README.md          # Backend setup instructions
-├── docker-compose.yml     # PostgreSQL + Backend
+├── app/                   # Next.js 15 App Router
+│   ├── api/               # Serverless API routes
+│   ├── product/           # Product detail pages
+│   ├── checkout/          # Checkout flow pages
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/            # Reusable React components
+├── hooks/                 # Custom React hooks
+├── lib/                   # Utilities, stores, API client
+├── public/                # Static assets
+├── styles/                # Global styles
+├── package.json           # Dependencies
+├── next.config.mjs        # Next.js configuration
+├── tsconfig.json          # TypeScript configuration
+├── tailwind.config.ts     # Tailwind CSS configuration
+├── postcss.config.mjs     # PostCSS configuration
+├── components.json        # shadcn/ui configuration
 └── README.md              # This file
 ```
 
 ## Quick Start (Local Development)
 
-### Option 1: Manual Setup (Recommended for development)
+### Installation & Setup
 
-**Terminal 1 - Backend:**
-```bash
-cd backend
-npm install
-npm run seed                # Seeds 25 products into SQLite
-npm run dev                 # Starts on http://localhost:3001
-```
+1. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
 
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev                 # Starts on http://localhost:3000
-```
+2. **Set up environment variables:**
+   ```bash
+   # Create .env.local for local development
+   cp .env.example .env.local  # if available, or create manually
+   ```
 
-Visit `http://localhost:3000` in your browser!
+3. **Seed the database (if using local SQLite):**
+   ```bash
+   # Database seeding happens on first API call if needed
+   # Or manually run seed if available
+   ```
 
-### Option 2: Docker Compose (For PostgreSQL)
+4. **Start the development server:**
+   ```bash
+   pnpm run dev
+   ```
 
-Requires Docker and Docker Compose.
+5. **Open your browser:**
+   Visit `http://localhost:3000`
 
-```bash
-# Start PostgreSQL + Backend together
-docker-compose up
-
-# In another terminal, start frontend
-cd frontend
-npm install
-npm run dev
-```
+The API routes are automatically available at `/api/*` and run as serverless functions in development and production.
 
 ## Features
 
 ### Frontend (Next.js 15)
-- ✅ **Product Grid**: 25 products (not 50), proper image architecture
-- ✅ **Image Gallery**: Swipeable on mobile, click thumbnails on desktop, all images shown
-- ✅ **Filtering**: Filter by category with URL params
+- ✅ **Product Grid**: 25 products with proper image architecture
+- ✅ **Image Gallery**: Swipeable on mobile, click thumbnails on desktop
+- ✅ **Category Filtering**: Filter by category with URL params
 - ✅ **Shopping Cart**: Persists to localStorage, side drawer, live count
-- ✅ **3-Step Checkout**: Shipping → Payment → Review with progress
-- ✅ **Countdown Timers**: Pulsing red when < 1 hour
-- ✅ **Stock Indicators**: Shows "Only X left" for low stock
-- ✅ **Responsive**: Mobile, tablet, desktop optimized
-- ✅ **Toast Notifications**: "Added to cart" confirmation
+- ✅ **3-Step Checkout**: Shipping → Payment → Review with progress indicators
+- ✅ **Countdown Timers**: Pulsing red when < 1 hour remaining
+- ✅ **Stock Indicators**: Shows "Only X left" for low stock items
+- ✅ **Responsive Design**: Mobile, tablet, desktop optimized
+- ✅ **Toast Notifications**: User feedback for cart actions
 
-### Backend (Express + Prisma)
-- ✅ **REST API**: All product/cart/checkout endpoints
-- ✅ **Database**: SQLite (dev) or PostgreSQL (production)
-- ✅ **Seed Data**: 25 products with proper image grouping
-- ✅ **Authentication**: Register, login, cart isolation per user (demo)
-- ✅ **CORS**: Allows frontend origin
-- ✅ **Stock Tracking**: Decrements on checkout
+### Backend (Next.js API Routes)
+- ✅ **REST API**: All product, cart, and checkout endpoints
+- ✅ **Database Ready**: Structured for SQLite or PostgreSQL
+- ✅ **Product Data**: 25 products with proper image grouping
+- ✅ **Cart Management**: Add, update, remove items
+- ✅ **Checkout Flow**: Complete order processing
+- ✅ **Stock Tracking**: Inventory management
 
 ## 25 Products Overview
 
@@ -130,74 +131,96 @@ npm run dev
 
 ## API Endpoints
 
-All backend endpoints documented in `backend/README.md`:
+All endpoints are serverless functions in the `app/api/` directory:
 
 ```
-GET    /api/products                # List all (with first image only)
-GET    /api/products?category=      # Filter by category
-GET    /api/products/:id            # Full product (all images)
-POST   /api/auth/register
-POST   /api/auth/login
-GET    /api/auth/me
-GET    /api/cart
-POST   /api/cart
-DELETE /api/cart/:itemId
-POST   /api/checkout
+GET    /api/products                # List all products
+GET    /api/products?category=      # Filter products by category
+GET    /api/products/[id]           # Get single product with all images
+POST   /api/cart                    # Add to cart
+GET    /api/cart                    # Get user's cart
+DELETE /api/cart/[itemId]           # Remove item from cart
+POST   /api/checkout                # Process checkout
 ```
+
+Environment variables required:
+- `NEXT_PUBLIC_API_URL` - Frontend-accessible API URL (auto-configured in Vercel)
 
 ## Environment Variables
 
-### Frontend (.env.local)
-```
-NEXT_PUBLIC_API_URL="http://localhost:3001"
+Create a `.env.local` file in the root directory:
+
+```bash
+# For local development (leave empty, API uses relative paths)
+# NEXT_PUBLIC_API_URL is not needed for local dev
+
+# Database configuration (if using external database)
+# DATABASE_URL="file:./dev.db"  # SQLite
+# DATABASE_URL="postgresql://..." # PostgreSQL
+
+# Node environment
+NODE_ENV="development"  # or "production"
 ```
 
-### Backend (.env)
-```
-DATABASE_URL="file:./dev.db"              # SQLite (dev)
-# or
-DATABASE_URL="postgresql://user:pass@localhost:5432/weverse_shop"  # PostgreSQL (prod)
+### Vercel Deployment
 
-FRONTEND_URL="http://localhost:3000"
-NODE_ENV="development"
-PORT=3001
-```
+In your Vercel project dashboard, add these environment variables:
+- `DATABASE_URL` - PostgreSQL connection string (if using external database)
+- Any other secrets your API routes need
+
+Vercel automatically handles `NEXT_PUBLIC_API_URL` for your deployment.
 
 ## Deployment
 
-### Deploy Frontend to Vercel
+### One-Click Deploy to Vercel
+
+The simplest way to deploy. Connect your GitHub repository to Vercel:
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Click "New Project" and select your GitHub repository
+4. Vercel auto-detects this is a Next.js app
+5. Add environment variables if needed (Database URL, API keys)
+6. Click "Deploy"
+
+Your app will be live at `your-project.vercel.app`
+
+### Manual Build & Deploy
 ```bash
-cd frontend
-npm run build
-# Connect GitHub repo to Vercel dashboard
-# Set NEXT_PUBLIC_API_URL environment variable
+# Build the application
+pnpm run build
+
+# Test the build locally
+pnpm run start
+
+# Deploy to your hosting platform
+# The entire app (frontend + API) is in the .next directory
 ```
 
-### Deploy Backend to Render/Railway/Heroku
-```bash
-cd backend
-npm run build
-# Deploy to your platform with PostgreSQL database
-# Set DATABASE_URL and FRONTEND_URL environment variables
-```
+### Database Setup for Production
+
+If using PostgreSQL in production:
+1. Create a PostgreSQL database (e.g., on Vercel Postgres, Railway, Neon)
+2. Add `DATABASE_URL` environment variable to Vercel
+3. Run migrations if you've set up a seed script
+4. Deploy to Vercel
 
 ## Technology Stack
 
-### Frontend
-- **Framework**: Next.js 15 (App Router)
-- **React**: 19.2
-- **Styling**: Tailwind CSS 3
-- **State**: Zustand (with localStorage persistence)
-- **HTTP**: Axios
-- **Icons**: Lucide React
-
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express 4
-- **ORM**: Prisma 5
-- **Database**: SQLite (dev), PostgreSQL (production)
-- **Language**: TypeScript
-- **Auth**: bcryptjs for password hashing
+- **Framework**: Next.js 15 (App Router) - React framework with serverless API routes
+- **React**: 19.2 - UI library
+- **TypeScript**: 5.7 - Type safety
+- **Styling**: Tailwind CSS 4 - Utility-first CSS
+- **Components**: shadcn/ui - Accessible component library (Radix UI + Tailwind)
+- **State Management**: Zustand - Simple state with localStorage persistence
+- **Forms**: React Hook Form + Zod - Form handling and validation
+- **HTTP Client**: Axios - API requests
+- **Icons**: Lucide React - Icon library
+- **Database**: SQLite (development) or PostgreSQL (production)
+- **Carousel**: Embla Carousel - Product image gallery
+- **Notifications**: Sonner - Toast notifications
+- **Animations**: Tailwind CSS animations - Smooth transitions
+- **Hosting**: Vercel - Optimal Next.js deployment platform
 
 ## Key Features Explained
 
@@ -229,40 +252,44 @@ npm run build
 
 ## Development Notes
 
-- Images are placeholders (demo mode). Replace with real product images.
-- Payment is fake (demo mode). Integrate Stripe for production.
-- Auth is minimal (localStorage userId). Use JWT/sessions for production.
-- All prices/timers/stock are demo data from the specification.
-- Category grouping is done server-side with product.category field.
+- **Images**: Placeholders in demo mode. Replace with real product images in `public/images/products/`
+- **Payment**: Fake payment form (demo). Integrate Stripe or similar for production
+- **Authentication**: Minimal (localStorage userId). Use JWT/sessions for production
+- **Stock Data**: Demo data from specification. Connect to real inventory system for production
+- **Product Data**: 25 products with proper image grouping in memory or database
+- **Database**: Uses SQLite in development. Configure PostgreSQL for production
 
-## File Sizes
+## Production Checklist
 
-- **Frontend code**: ~50KB (minified)
-- **Backend code**: ~25KB
-- **Product images**: ~53MB total (user's 53 images)
+Before deploying to production:
+- [ ] Replace placeholder product images with real images
+- [ ] Set up real payment processing (Stripe, etc.)
+- [ ] Implement proper user authentication (JWT, sessions)
+- [ ] Connect to PostgreSQL database
+- [ ] Enable HTTPS (automatic with Vercel)
+- [ ] Set secure environment variables
+- [ ] Implement rate limiting on API routes
+- [ ] Add input validation and sanitization
+- [ ] Set up error monitoring (Sentry, etc.)
+- [ ] Test checkout flow end-to-end
+- [ ] Configure proper CORS if needed
 
-## Security Notes
+## Troubleshooting
 
-For production deployment:
-- Use HTTPS only
-- Set secure CORS origins
-- Implement proper JWT authentication
-- Hash passwords with bcrypt (already done)
-- Use environment variables for secrets
-- Enable HTTPS on all APIs
-- Implement rate limiting
-- Add input validation
+**Issue**: API routes not working
+- **Solution**: Make sure you're in `/vercel/share/v0-project` directory when running `pnpm install`
 
-## Support
+**Issue**: Database errors
+- **Solution**: Check DATABASE_URL environment variable or ensure SQLite file exists
 
-For issues or questions:
-1. Check the individual README files in `/backend` and `/frontend`
-2. Review the API documentation in backend/README.md
-3. Check component props in each component file
-4. Review the seed data in backend/src/seed.ts for product structure
+**Issue**: Images not loading
+- **Solution**: Verify images exist in `public/` directory and paths are correct in product data
+
+**Issue**: Build fails on Vercel
+- **Solution**: Check build logs in Vercel dashboard, ensure all dependencies are installed
 
 ---
 
-**Built with ❤️ using Next.js 15 & Express**
+**Built with Next.js 15 & Modern Web Technologies**
 
-This is a complete, production-ready Weverse Shop clone with proper architecture and 25 distinct products mapped from 53 images.
+This is a complete, production-ready Weverse Shop clone with proper single-app architecture and 25 distinct products with comprehensive image galleries.
