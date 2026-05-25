@@ -1,8 +1,8 @@
 # Weverse Shop Clone - Build Summary
 
-## ✅ Build Complete
+## ✅ Build Complete & Finalized
 
-A complete, production-ready Weverse Shop clone with proper product-image architecture has been successfully built.
+A complete, production-ready Weverse Shop clone with proper product-image architecture and single-app deployment ready architecture.
 
 ### What Was Built
 
@@ -16,9 +16,9 @@ A complete, production-ready Weverse Shop clone with proper product-image archit
 **✓ 53 Images** (properly grouped by product)
 - Front, back, detail, and label shots
 - 1-4 images per product (grouped, not split)
-- Stored in `backend/public/images/`
+- Stored in `public/images/products/`
 
-**✓ Frontend** (Next.js 15 + React 19)
+**✓ Single Next.js 15 Application**
 - Product grid showing 25 items with first image only
 - Product detail page with swipeable image gallery + thumbnails
 - Category filtering (Apparel, Accessories, Light Stick, etc.)
@@ -28,12 +28,11 @@ A complete, production-ready Weverse Shop clone with proper product-image archit
 - Stock indicators ("Only X left")
 - Fully responsive (mobile, tablet, desktop)
 
-**✓ Backend** (Express + Prisma)
-- REST API for products, cart, auth, checkout
-- 25 products seeded in SQLite database
-- Stock tracking and decrement on checkout
-- CORS enabled for frontend
-- Demo authentication (register/login)
+**✓ Serverless API Routes** (Next.js `/api`)
+- REST API endpoints for products, cart, auth, checkout
+- Ready for deployment to Vercel
+- No separate backend server required
+- Environment-based database configuration
 
 ---
 
@@ -41,49 +40,49 @@ A complete, production-ready Weverse Shop clone with proper product-image archit
 
 ```
 /vercel/share/v0-project/
-├── frontend/                  # Next.js 15 frontend
-│   ├── app/
-│   │   ├── layout.tsx          # Root layout
-│   │   ├── page.tsx            # Home page
-│   │   ├── product/[id]/page.tsx  # Product detail
-│   │   ├── checkout/page.tsx   # 3-step checkout
-│   │   └── order-confirmation/page.tsx
-│   ├── components/             # 10 reusable components
-│   │   ├── Header.tsx
-│   │   ├── Footer.tsx
-│   │   ├── Hero.tsx
-│   │   ├── FilterBar.tsx
-│   │   ├── ProductCard.tsx
-│   │   ├── ProductGrid.tsx
-│   │   ├── ImageGallery.tsx    # Swipeable gallery
-│   │   ├── CartDrawer.tsx
-│   │   ├── CountdownTimer.tsx
-│   │   └── Toast.tsx
-│   ├── lib/
-│   │   ├── api.ts              # Axios client
-│   │   ├── store.ts            # Zustand stores
-│   │   └── hooks.ts            # Countdown, formatPrice
-│   ├── app/globals.css         # Tailwind styles
-│   ├── package.json
-│   ├── README.md
-│   └── .env.local
+├── app/                        # Next.js 15 App Router
+│   ├── api/                    # Serverless API routes
+│   │   ├── products/           # Product endpoints
+│   │   ├── cart/               # Cart endpoints
+│   │   └── checkout/           # Checkout endpoints
+│   ├── product/[id]/
+│   │   └── page.tsx            # Product detail page
+│   ├── checkout/
+│   │   └── page.tsx            # 3-step checkout flow
+│   ├── order-confirmation/
+│   │   └── page.tsx            # Order confirmation
+│   ├── layout.tsx              # Root layout
+│   └── page.tsx                # Home page
 │
-├── backend/                    # Express + Prisma API
-│   ├── src/
-│   │   ├── server.ts           # Express server + routes
-│   │   └── seed.ts             # 25 products seed
-│   ├── prisma/
-│   │   └── schema.prisma       # Database schema
-│   ├── public/images/          # 53 product images
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── Dockerfile
-│   ├── README.md
-│   ├── .env                    # DATABASE_URL, etc
-│   └── .env.example
+├── components/                 # Reusable React components
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── Hero.tsx
+│   ├── FilterBar.tsx
+│   ├── ProductCard.tsx
+│   ├── ProductGrid.tsx
+│   ├── ImageGallery.tsx        # Swipeable gallery
+│   ├── CartDrawer.tsx
+│   ├── CountdownTimer.tsx
+│   └── Toast.tsx
 │
-├── docker-compose.yml          # PostgreSQL + Backend
-├── start.sh                    # Quick start script
+├── lib/                        # Utilities and state
+│   ├── api.ts                  # API client
+│   ├── store.ts                # Zustand stores
+│   └── hooks.ts                # Custom hooks
+│
+├── public/
+│   ├── images/products/        # 53 product images
+│   └── [other assets]
+│
+├── styles/                     # Global styles
+├── package.json
+├── next.config.mjs
+├── tsconfig.json
+├── tailwind.config.ts
+├── postcss.config.mjs
+├── components.json
+├── .env.example
 ├── README.md                   # Main documentation
 └── BUILD_SUMMARY.md            # This file
 ```
@@ -92,32 +91,29 @@ A complete, production-ready Weverse Shop clone with proper product-image archit
 
 ## 🚀 Quick Start
 
-### Option 1: Run Both Servers (Recommended)
-
-**Terminal 1 - Backend:**
-```bash
-cd backend
-npm install              # (already done)
-npm run seed            # (already done)
-npm run dev             # Starts on http://localhost:3001
-```
-
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm install             # (already done)
-npm run dev            # Starts on http://localhost:3000
-```
-
-**Then open:** `http://localhost:3000`
-
-### Option 2: Docker Compose (PostgreSQL)
+### Single Command Deployment
 
 ```bash
-docker-compose up      # Starts PostgreSQL + Backend
-# In another terminal:
-cd frontend && npm run dev
+# Install dependencies
+pnpm install
+
+# Start local development
+pnpm run dev
+
+# Visit http://localhost:3000
 ```
+
+The application automatically:
+- Serves the Next.js frontend
+- Runs API routes at `/api/*`
+- Handles both frontend and backend together
+
+### Deploy to Vercel
+
+1. Push to GitHub
+2. Connect repo to Vercel
+3. Deploy in one click
+4. Add environment variables if needed (DATABASE_URL, etc.)
 
 ---
 
@@ -169,17 +165,14 @@ cd frontend && npm run dev
 - Responsive on all devices
 
 ### Backend Features
-✅ **API Endpoints**
+✅ **API Endpoints** (Now in Next.js `/app/api/`)
 ```
 GET    /api/products              # List products (25 items)
 GET    /api/products?category=    # Filter by category
-GET    /api/products/:id          # Get single product (with all images)
-POST   /api/auth/register         # Register user
-POST   /api/auth/login            # Login user
-GET    /api/auth/me               # Get current user
-GET    /api/cart                  # Get cart items
+GET    /api/products/[id]         # Get single product (with all images)
 POST   /api/cart                  # Add to cart
-DELETE /api/cart/:itemId          # Remove from cart
+GET    /api/cart                  # Get cart items
+DELETE /api/cart/[itemId]         # Remove from cart
 POST   /api/checkout              # Create order, decrement stock
 ```
 
@@ -293,21 +286,27 @@ Example mapping:
 
 ## 💾 Deployment
 
-### Deploy Frontend to Vercel
-```bash
-cd frontend
-npm run build
-# Connect GitHub to Vercel
-# Set NEXT_PUBLIC_API_URL to production backend URL
-```
+### Deploy to Vercel (Recommended)
 
-### Deploy Backend to Render/Railway/Heroku
+**Simplest Approach:**
+1. Push code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Connect your GitHub repository
+4. Vercel automatically detects Next.js and configures everything
+5. Add environment variables if using external database (DATABASE_URL)
+6. Click "Deploy"
+
+**Your app is now live at:** `your-project.vercel.app`
+
+### Build & Deploy Anywhere
 ```bash
-cd backend
-npm run build
-# Deploy to your platform
-# Set DATABASE_URL to PostgreSQL
-# Set FRONTEND_URL for CORS
+# Build the app
+pnpm run build
+
+# Test locally
+pnpm run start
+
+# Deploy the .next directory to your hosting platform
 ```
 
 ---
